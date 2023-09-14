@@ -1,5 +1,5 @@
+import numpy as np
 from .vehicle import Vehicle
-from numpy.random import randint
 
 
 class VehicleGenerator:
@@ -21,9 +21,9 @@ class VehicleGenerator:
         self.upcoming_vehicle = self.generate_vehicle()
 
     def generate_vehicle(self):
-        """Returns a random vehicle from self.vehicles with random proportions"""
         total = sum(pair[0] for pair in self.vehicles)
-        r = randint(1, total + 1)
+        r = np.random.randint(1, total + 1)
+
         for (weight, config) in self.vehicles:
             r -= weight
             if r <= 0:
@@ -32,7 +32,7 @@ class VehicleGenerator:
     def update(self):
         if self.sim.t - self.last_added_time >= 60/self.vehicle_rate:
             road = self.sim.roads[0]
-            if len(road.vehicles) == 0 or road.vehicles[-1].x > self.upcoming_vehicle.s0 + self.upcoming_vehicle.l:
+            if len(road.vehicles) == 0 or road.vehicles[-1].x > abs(self.upcoming_vehicle.v - road.vehicles[-1].v) * 2:
                 self.upcoming_vehicle.time_added = self.sim.t
                 road.vehicles.append(self.upcoming_vehicle)
 

@@ -1,6 +1,6 @@
 from .road import Road
 from .vehicle_generator import VehicleGenerator
-
+from collections import deque
 
 class Simulation:
     def __init__(self, config={}):
@@ -31,8 +31,17 @@ class Simulation:
         return gen
 
     def update(self):
-        # Update every road
         for road in self.roads:
+            road.vehicles = deque(sorted(road.vehicles, key=lambda obj: obj.x, reverse=True)) # Sorteer vehicles deque op x-waarde
+            for i in range(0, len(road.vehicles)):
+                print(road.vehicles[i].x)
+
+            if len(road.vehicles) == 0:
+                continue
+
+            vehicle = road.vehicles[0]
+            if vehicle.x >= road.length:
+                road.vehicles.popleft()
             road.update(self.dt)
 
         for gen in self.generators:

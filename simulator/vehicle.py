@@ -2,80 +2,81 @@ import numpy as np
 import itertools
 from collections import deque
 from .road import Road
-
+from .window import Window
 
 class Vehicle:
     def __init__(self, sim, config={}):
         self.set_default_config()
+        self.car_type()
 
         for attr, val in config.items():
             setattr(self, attr, val)
 
-        # self.init_properties()
-
     def set_default_config(self):
         self.l= 4
-        self.s0 = 4
-        self.v_max = 100
-        self.x = 0
-        self.y = 900/2 + 25
-        self.v = self.v_max
-        # self.d = 0
+        self.s0 = 50            # Als er een nieuwe auto ingevoegd moet worden dan moet daar minimaal 50 meter tussen zitten
+        self.v_max = 100/3.6    # Er geldt een maximale snelheid van 100 km/h
+        self.x = 0              # Auto's beginnen op x=0
+        self.y = 900/2 + 25     # Auto's beginnen op de rechterbaan
+        self.v = self.v_max     # Auto's beginnen met 100 km/h
+        self.t = 2              # Tijd tussen de auto's (hou minimaal 2s afstand)
+        self.r = False          # Mag naar rechts
+        self.l = False          # Mag naar links
 
-    # def init_properties(self):
-    #     a=1
+    def car_type(self):
+        if np.random.choice([0, 1], 1, p=[0.95, 0.05]) == 0:
+            self.type = 0
+        else:
+            self.type = 1
 
-    def update(self, lead, dt):
-        T = 1
+    def update(self, lead, tail, dt):
 
-        # Voor de eerste auto
-        if lead is None:
-            if self.v < self.v_max - 20:
+        if lead is None:    # Voor de eerste auto in de rij
+            # if tail is not None:    # Met achterliggers
+            #     print('here')
+            #     if abs(tail.x - self.x) > tail.v * self.t and self.y == 900/2 - 50 and tail.y == 900/2 + 25:     # Als de afstand tussen de achterligger en de auto
+            #         self.y += 75
+            #     else:
+            #         self.y = 900/2 + 25
+            if tail is not None:
+                print(tail.x)
+            # if tail.y == 900/2 - 50 or (tail.y == 900/2 + 25 and abs(tail.x - self.x) < tail.v * self.t):
+            #     self.y += 75
+            elif self.v < self.v_max - 20/3.6:
                 self.v += 1
-            elif self.v > self.v_max + 5:
+            elif self.v > self.v_max + 20/3.6:
                 self.v -= 1
             else:
                 self.v += np.random.choice([1, -1])
 
-        if lead is not None:
-            if self.y == 900/2 + 25:
-                if (lead.v-self.v) * T < 10 and self.y == lead.y:
-                    self.y -= 75
-                    self.v += 50
+        elif lead is not None:    # Voor de andere auto's met voorliggers
+            # if self.y == 900/2 + 25:    # Als de auto rechts rijdt
+            #     if abs(lead.x - self.x) < self.v * self.t and abs(tail.x-self.x) < self.v * self.t and self.y == lead.y:   # Als de afstand tussen de auto en zijn voorligger kleiner is dat 2s en ze beide rechts zitten
+            #         self.y -= 75     # Ga naar de linkerbaan en verander je snelheid met 5 km/h
+            #         self.v += 5/3.6
                     # self.d += 1
 
-                elif self.v < 80:
-                    self.v += 1
-                elif self.v > 100:
-                    self.v -= 1
+                if self.v < 80/3.6:   # Bounded random walk met 80 < v < 95
+                    self.v += 2/3.6
+                elif self.v > 95/3.6:
+                    self.v -= 2/3.6
                 else:
                     self.v += np.random.choice([1, -1])
 
-            elif self.y == 900/2 - 50:
-                if (self.v-lead.v) * T > 1000:
-                    self.y += 75
+            # elif self.y == 900/2 - 50:  # Als de auto links rijdt
+                # if abs(lead.x - self.x) > self.v*t and lead.y == 900/2 + 25:
+                #     self.y += 75
                     # self.d = -1
+
+                if abs(self.x - lead.x) < self.v * self.t and lead.y == 900/2 - 50:    # Als de voorganger ook links rijdt, hou afstand.
+                    self.v = lead.v-2/3.6
+
+                elif self.v < 105/3.6:  # Bounded random walk met 105 < v < 120
+                    self.v += 2/3.6
+                elif self.v > 120/3.6:
+                    self.v -= 2/3.6
                 else:
-                    if self.v > lead.v:
-                        self.v -= 1
-                    elif self.v < 105:
-                        self.v += 100
-                    elif self.v > 1200:
-                        self.v -= 1
-                    else:
-                        self.v += np.random.choice([1, -1])
+                    self.v += np.random.choice([1, -1])
 
-            # elif self.d == 1 and self.y != 900/2 - 50:
-            #     self.y -= 5
-            #     self.v += 2
-            #
-            # elif self.d == -1 and self.y != 900/2 + 25:
-            #     self.y += 5
-            #     self.v -= 2
 
-            else:
-                pass
-        else:
-            pass
-
-        self.x += self.v * dt
+        self.x = (self.x + (self.v * dt))

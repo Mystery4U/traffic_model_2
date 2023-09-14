@@ -1,7 +1,8 @@
 import pygame
+import os
 import numpy as np
 from pygame import gfxdraw
-
+from .road import Road
 
 class Window:
     def __init__(self, sim, config={}):
@@ -80,7 +81,7 @@ class Window:
 
         for road in self.sim.roads:
             pos = (road.start, index)
-            size = (road.length, lane_width)
+            size = (self.width, lane_width)
             color = (0, 0, 0)
             color2 = (255, 255, 255)
             self.box(pos, size, color)
@@ -99,10 +100,21 @@ class Window:
         self.screen.blit(text_frc, (100, 0))
 
     def draw_vehicle(self, vehicle, road):
-        pos = vehicle.x, vehicle.y
-        size = vehicle.l*10, 20
+        car = pygame.image.load(os.path.join('image/car.png'))
+        width = car.get_rect().width
+        height = car.get_rect().height
+        car.convert()
+        car = pygame.transform.scale(car, (width/20, height/3))
+
+        pos = vehicle.x * 1500/5000, vehicle.y
+        for road in self.sim.roads:
+            size = vehicle.l * (self.width/road.length), 20
         color = (255, 255, 255)
+
+        # if vehicle.type == 0:
         self.box(pos, size, color)
+        # else:
+        #     self.screen.blit(car, pos)
 
     def draw_vehicles(self):
         for road in self.sim.roads:
