@@ -33,8 +33,9 @@ class Simulation:
     def update(self):
         for road in self.roads:
             road.vehicles = deque(sorted(road.vehicles, key=lambda obj: obj.x, reverse=True)) # Sorteer vehicles deque op x-waarde
-            for i in range(0, len(road.vehicles)):
-                print(road.vehicles[i].x)
+
+            for i in road.vehicles:
+                break
 
             if len(road.vehicles) == 0:
                 continue
