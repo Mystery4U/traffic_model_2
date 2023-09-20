@@ -1,6 +1,9 @@
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 from .road import Road
 from .vehicle_generator import VehicleGenerator
 from collections import deque
+
 
 class Simulation:
     def __init__(self, config={}):
@@ -12,9 +15,11 @@ class Simulation:
     def set_default_config(self):
         self.t = 0.0            # Time keeping
         self.frame_count = 0    # Frame count keeping
-        self.dt = 1/1000         # Simulation time step
+        self.dt = 1/60         # Simulation time step
         self.roads = []         # Array to store roads
         self.generators = []
+        self.time_travel = []
+        self.index = 0
 
     def create_road(self, start, end):
         road = Road(start, end)
@@ -35,6 +40,7 @@ class Simulation:
             road.vehicles = deque(sorted(road.vehicles, key=lambda obj: obj.x, reverse=True)) # Sorteer vehicles deque op x-waarde
 
             for i in road.vehicles:
+                # print(vars(i))
                 break
 
             if len(road.vehicles) == 0:
@@ -43,6 +49,16 @@ class Simulation:
             vehicle = road.vehicles[0]
             if vehicle.x >= road.length:
                 road.vehicles.popleft()
+                self.index += 1
+                print(self.index)
+                self.time_travel.append(self.t - vehicle.time_added)  # Append the current time_travel data
+                if self.index == 50:
+                    plt.hist(self.time_travel, bins=10, edgecolor='black')
+                    plt.xlabel('Values')
+                    plt.ylabel('Frequency')
+                    plt.title('Histogram of Values')
+                    plt.show()
+
             road.update(self.dt)
 
         for gen in self.generators:

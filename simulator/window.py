@@ -130,7 +130,7 @@ class Window:
 
         pos = vehicle.x * 1500/5000, vehicle.y
         cmap = plt.get_cmap('RdYlGn_r')
-        norm = Normalize(vmin=70/3.6, vmax=150/3.6)
+        norm = Normalize(vmin=70/3.6, vmax=130/3.6)
         normalized_value = norm(speed)
         rgba = cmap(normalized_value)
         r, g, b, _ = rgba

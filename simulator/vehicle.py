@@ -39,7 +39,7 @@ class Vehicle:
                 else:
                     self.v += np.random.choice([1/3.6, -1/3.6])
             else:
-                self.v = 140 / 3.6
+                self.v = 120 / 3.6
                 if abs(self.x - tail.x) > tail.v * self.t * 1.5:
                     self.y += 75
                 else:
@@ -59,17 +59,18 @@ class Vehicle:
                     self.v += np.random.choice([3/3.6, -3/3.6])
 
             elif self.y == 900/2 - 50:  # Als de auto links rijdt
-                if abs(self.x - lead.x) < self.v * self.t and lead.y == 900/2 - 50 and self.y == 900/2 - 50:    # Als de voorganger ook links rijdt, hou afstand.
+                if abs(self.x - lead.x) < self.v * self.t and lead.y == 900/2 - 50:    # Als de voorganger ook links rijdt, hou afstand.
                     self.v += -2/3.6
+                    self.y += 75
 
                 if tail != None:
                     if abs(tail.x - self.x) > self.v * self.t and abs(lead.x-self.x) > self.v * self.t:
                         self.y += 75
-                        self.v -= 10/3.6
+                        self.v -= 5/3.6
 
-                if self.v < 130/3.6:  # Bounded random walk met 105 < v < 120
+                if self.v < 105/3.6:  # Bounded random walk met 105 < v < 120
                     self.v += 2/3.6
-                elif self.v > 140/3.6:
+                elif self.v > 130/3.6:
                     self.v -= 2/3.6
                 else:
                     self.v += np.random.choice([1/3.6, -1/3.6])
