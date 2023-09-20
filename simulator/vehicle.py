@@ -37,37 +37,43 @@ class Vehicle:
                 elif self.v > self.v_max + 20/3.6:
                     self.v -= 1
                 else:
-                    self.v += np.random.choice([1, -1])
+                    self.v += np.random.choice([1/3.6, -1/3.6])
             else:
-                self.v = 100
+                self.v = 140 / 3.6
+                if abs(self.x - tail.x) > tail.v * self.t * 1.5:
+                    self.y += 75
+                else:
+                    pass
 
         elif lead is not None:    # Voor de andere auto's met voorliggers
             if self.y == 900/2 + 25:    # Als de auto rechts rijdt
                 if abs(lead.x - self.x) < self.v * self.t and self.y == lead.y:   # Als de afstand tussen de auto en zijn voorligger kleiner is dat 2s en ze beide rechts zitten
-                    self.y -= 75     # Ga naar de linkerbaan en verander je snelheid met 5 km/h
-                    self.v += 20/3.6
+                    self.y -= 75     # Ga naar de linkerbaan en verander je snelheid met 10 km/h
+                    self.v += 10/3.6
 
-                elif self.v < 80/3.6:   # Bounded random walk met 80 < v < 95
+                if self.v < 85/3.6:   # Bounded random walk met 80 < v < 95
                     self.v += 2/3.6
                 elif self.v > 95/3.6:
                     self.v -= 2/3.6
                 else:
-                    self.v += np.random.choice([1, -1])
+                    self.v += np.random.choice([3/3.6, -3/3.6])
 
-            # elif self.y == 900/2 - 50:  # Als de auto links rijdt
-            #     if abs(lead.x - self.x) > self.v*t and lead.y == 900/2 + 25:
-            #         self.y += 75
-                    # self.d = -1
-
+            elif self.y == 900/2 - 50:  # Als de auto links rijdt
                 if abs(self.x - lead.x) < self.v * self.t and lead.y == 900/2 - 50 and self.y == 900/2 - 50:    # Als de voorganger ook links rijdt, hou afstand.
-                    self.v = lead.v-2/3.6
+                    self.v += -2/3.6
 
-                elif self.v < 105/3.6:  # Bounded random walk met 105 < v < 120
+                if tail != None:
+                    if abs(tail.x - self.x) > self.v * self.t and abs(lead.x-self.x) > self.v * self.t:
+                        self.y += 75
+                        self.v -= 10/3.6
+
+                if self.v < 130/3.6:  # Bounded random walk met 105 < v < 120
                     self.v += 2/3.6
-                elif self.v > 120/3.6:
+                elif self.v > 140/3.6:
                     self.v -= 2/3.6
                 else:
-                    self.v += np.random.choice([1, -1])
-
+                    self.v += np.random.choice([1/3.6, -1/3.6])
+            else:
+                pass
 
         self.x = (self.x + (self.v * dt))

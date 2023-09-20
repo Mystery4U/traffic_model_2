@@ -12,7 +12,7 @@ class Simulation:
     def set_default_config(self):
         self.t = 0.0            # Time keeping
         self.frame_count = 0    # Frame count keeping
-        self.dt = 1/60         # Simulation time step
+        self.dt = 1/1000         # Simulation time step
         self.roads = []         # Array to store roads
         self.generators = []
 
