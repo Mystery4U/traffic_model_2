@@ -50,10 +50,16 @@ class Window:
 
         pygame.font.init()
         self.text_font = pygame.font.SysFont('Lucida Console', 16)
+        frame_number = 0
 
         paused = False
         running = True
         while running:
+            output_directory = "frames_output"
+            frame_filename = os.path.join(output_directory, f"frame_{frame_number:04d}.png")
+            pygame.image.save(self.screen, frame_filename)
+            frame_number += 1
+
             if loop:
                 loop(self.sim)
 
@@ -69,6 +75,7 @@ class Window:
                 # Quit program if window is closed
                 if event.type == pygame.QUIT:
                     running = False
+
 
     def run(self, steps_per_update=1):
 

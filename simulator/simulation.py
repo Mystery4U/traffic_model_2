@@ -52,8 +52,8 @@ class Simulation:
                 self.index += 1
                 print(self.index)
                 self.time_travel.append(self.t - vehicle.time_added)  # Append the current time_travel data
-                if self.index == 50:
-                    plt.hist(self.time_travel, bins=10, edgecolor='black')
+                if self.index == 1000:
+                    plt.hist(self.time_travel, bins=20, edgecolor='black')
                     plt.xlabel('Values')
                     plt.ylabel('Frequency')
                     plt.title('Histogram of Values')

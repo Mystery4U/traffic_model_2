@@ -36,6 +36,7 @@ class VehicleGenerator:
                 self.upcoming_vehicle.time_added = self.sim.t
                 if len(road.vehicles) != 0:
                     self.upcoming_vehicle.y = np.random.choice([900/2 - 50, 900/2 + 25], p=[0.5, 0.5])
+                    self.upcoming_vehicle.l = np.random.choice([4, 19], p=[0.9, 0.1])
                 road.vehicles.append(self.upcoming_vehicle)
 
                 # Reset last_added_time and upcoming_vehicle
