@@ -20,6 +20,7 @@ class Simulation:
         self.generators = []
         self.time_travel = []
         self.index = 0
+        self.paused = False
 
     def create_road(self, start, end):
         road = Road(start, end)
@@ -36,36 +37,33 @@ class Simulation:
         return gen
 
     def update(self):
-        for road in self.roads:
-            road.vehicles = deque(sorted(road.vehicles, key=lambda obj: obj.x, reverse=True)) # Sorteer vehicles deque op x-waarde
+        if not self.paused:  # Check if the simulation is not paused
+            for road in self.roads:
+                road.vehicles = deque(sorted(road.vehicles, key=lambda obj: obj.x, reverse=True)) # Sorteer vehicles deque op x-waarde
 
-            for i in road.vehicles:
-                # print(vars(i))
-                break
+                if len(road.vehicles) == 0:
+                    continue
 
-            if len(road.vehicles) == 0:
-                continue
+                vehicle = road.vehicles[0]
+                if vehicle.x >= road.length:
+                    road.vehicles.popleft()
+                    self.index += 1
+                    print(self.index)
+                    self.time_travel.append(self.t - vehicle.time_added)  # Append the current time_travel data
+                    if self.index == 1000:
+                        plt.hist(self.time_travel, bins=20, edgecolor='black')
+                        plt.xlabel('Values')
+                        plt.ylabel('Frequency')
+                        plt.title('Histogram of Values')
+                        plt.show()
 
-            vehicle = road.vehicles[0]
-            if vehicle.x >= road.length:
-                road.vehicles.popleft()
-                self.index += 1
-                print(self.index)
-                self.time_travel.append(self.t - vehicle.time_added)  # Append the current time_travel data
-                if self.index == 1000:
-                    plt.hist(self.time_travel, bins=20, edgecolor='black')
-                    plt.xlabel('Values')
-                    plt.ylabel('Frequency')
-                    plt.title('Histogram of Values')
-                    plt.show()
+                road.update(self.dt)
 
-            road.update(self.dt)
+            for gen in self.generators:
+                gen.update()
 
-        for gen in self.generators:
-            gen.update()
-
-        self.t += self.dt
-        self.frame_count += 1
+            self.t += self.dt
+            self.frame_count += 1
 
     def run(self, steps):
         for _ in range(steps):

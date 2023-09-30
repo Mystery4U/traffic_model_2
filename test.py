@@ -1,14 +1,23 @@
 from simulator import *
 
 sim = Simulation()
-lane_1 = (0, 5000)
-lane_2 = (0, 5000)
-sim.create_roads([lane_1, lane_2])
+
+n = 3
+d = {}
+for x in range(0, n):
+    d["lane_{}".format(x)] = (0, 5000)
+
+lane_list = []
+for key, value in d.items():
+    exec(f'{key} = {value}')
+    lane_list.append(eval(key))
+
+sim.create_roads(lane_list)
 
 sim.create_gen({
-'vehicle_rate': 38,
+'vehicle_rate': 40,
 'vehicles':[[3, {}], [3, {}]]})
 
 win = Window(sim)
 # win.zoom = 10
-win.run(steps_per_update=1)
+win.run(steps_per_update=20)

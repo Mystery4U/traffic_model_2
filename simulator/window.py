@@ -2,6 +2,7 @@ import pygame
 import os
 import numpy as np
 import time
+import simulator
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
@@ -10,16 +11,16 @@ from .road import Road
 
 
 class PauseButton(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, position):
         super().__init__()
         self.image = pygame.Surface((50, 50))
         self.image.fill((255,255,255))
         pygame.draw.rect(self.image, (0,0,0), (0, 0, 50, 50), 2)
         self.rect = self.image.get_rect()
-        self.rect.center = (1500// 2, 900 // 2)
+        self.rect.topleft = position
 
 button_group = pygame.sprite.Group()
-pause_button = PauseButton()
+pause_button = PauseButton((100, 50))
 button_group.add(pause_button)
 
 class Window:
@@ -33,6 +34,10 @@ class Window:
     def set_default_config(self):
         self.width = 1500
         self.height = 900
+        self.lane_width = 70
+        self.lanes = len(self.sim.roads)
+        self.grass_width = (self.height - (self.lane_width * self.lanes)) / 2
+
         self.bg_color = (38, 82, 33)
 
         self.fps = 60
@@ -61,12 +66,7 @@ class Window:
             frame_number += 1
 
             if loop:
-                loop(self.sim)
-
-            elif event.type == pygame.MOUSEBUTTONDOWN and not paused:
-                if pause_button.rect.collidepoint(event.pos):
-                    paused = True
-            self.draw()
+                loop(self.sim, paused)
 
             pygame.display.update()
             clock.tick(self.fps)
@@ -77,9 +77,17 @@ class Window:
                     running = False
 
 
-    def run(self, steps_per_update=1):
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if pause_button.rect.collidepoint(event.pos):
+                        paused = not paused  # Toggle pause state
 
-        def loop(sim):
+            if not paused:
+                self.draw()
+
+
+    def run(self, steps_per_update=1):
+        def loop(sim, paused):
+            sim.paused = paused
             sim.run(steps_per_update)
 
         self.loop(loop)
@@ -90,7 +98,6 @@ class Window:
         gfxdraw.box(self.screen, pygame.Rect(x, y, l, h), color)
 
     def draw_line_dashed(self, color, start_pos, end_pos, width=1, dash_length=10, exclude_corners=True):
-
         start_pos = np.array(start_pos)
         end_pos = np.array(end_pos)
 
@@ -104,19 +111,21 @@ class Window:
                 for n in range(int(exclude_corners), dash_amount - int(exclude_corners), 2)]
 
     def draw_roads(self):
-        lanes = len(self.sim.roads) # 2
-        lane_width = 70
-        index = self.height/2
+        lane_y = self.grass_width + (self.lane_width * self.lanes) - self.lane_width
+        dashed_line_index = 1
 
         for road in self.sim.roads:
-            pos = (road.start, index)
-            size = (self.width, lane_width)
+            pos = (road.start, lane_y)
+            size = (self.width, self.lane_width)
             color = (0, 0, 0)
             color2 = (255, 255, 255)
             self.box(pos, size, color)
-            self.draw_line_dashed(color2, (0, self.height/lanes), (self.width, self.height/lanes), dash_length=5)
 
-            index -= 70
+            if dashed_line_index < self.lanes:
+                self.draw_line_dashed(color2, (0, lane_y), (self.width, lane_y), dash_length=5)
+
+            lane_y -= self.lane_width
+            dashed_line_index += 1
 
     def background(self, r, g, b):
         self.screen.fill((r, g, b))
@@ -129,15 +138,17 @@ class Window:
         self.screen.blit(text_frc, (100, 0))
 
     def draw_vehicle(self, vehicle, road, speed):
+        # Plaatje voor de auto
         car = pygame.image.load(os.path.join('image/car.png'))
         width = car.get_rect().width
         height = car.get_rect().height
         car.convert()
         car = pygame.transform.scale(car, (width/20, height/3))
 
-        pos = vehicle.x * 1500/5000, vehicle.y
+        # Zonder plaatje
+        pos = vehicle.x * 1500/5000, self.grass_width + (self.lane_width * self.lanes) - (self.lane_width * vehicle.rijbaan) + (self.lane_width - vehicle.b) / 2
         cmap = plt.get_cmap('RdYlGn_r')
-        norm = Normalize(vmin=70/3.6, vmax=130/3.6)
+        norm = Normalize(vmin=70/3.6, vmax=120/3.6)
         normalized_value = norm(speed)
         rgba = cmap(normalized_value)
         r, g, b, _ = rgba
@@ -147,7 +158,7 @@ class Window:
         color = (r, g, b)
 
         for road in self.sim.roads:
-            size = vehicle.l * (self.width/road.length), 30
+            size = vehicle.l * (self.width/road.length), vehicle.b
 
         # For image of the car
         # if vehicle.type == 0:
@@ -167,6 +178,4 @@ class Window:
         self.draw_roads()
         self.draw_status()
         self.draw_vehicles()
-
-
-
+        button_group.draw(self.screen)

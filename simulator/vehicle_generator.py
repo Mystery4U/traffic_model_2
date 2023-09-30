@@ -32,10 +32,10 @@ class VehicleGenerator:
     def update(self):
         if self.sim.t - self.last_added_time >= 60/self.vehicle_rate:
             road = self.sim.roads[0]
-            if len(road.vehicles) == 0 or road.vehicles[-1].x > abs(self.upcoming_vehicle.v - road.vehicles[-1].v) * 2:
+            if len(road.vehicles) == 0 or road.vehicles[-1].x > abs(self.upcoming_vehicle.v - road.vehicles[-1].v) * 3:
                 self.upcoming_vehicle.time_added = self.sim.t
                 if len(road.vehicles) != 0:
-                    self.upcoming_vehicle.y = np.random.choice([900/2 - 50, 900/2 + 25], p=[0.5, 0.5])
+                    self.upcoming_vehicle.rijbaan = np.random.choice(list(range(1, len(self.sim.roads) + 1)))
                     self.upcoming_vehicle.l = np.random.choice([4, 19], p=[0.9, 0.1])
                 road.vehicles.append(self.upcoming_vehicle)
 
