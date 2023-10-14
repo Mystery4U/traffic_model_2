@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import csv
 from matplotlib.animation import FuncAnimation
 from .road import Road
 from .vehicle_generator import VehicleGenerator
@@ -15,7 +16,7 @@ class Simulation:
     def set_default_config(self):
         self.t = 0.0            # Time keeping
         self.frame_count = 0    # Frame count keeping
-        self.dt = 1/60         # Simulation time step
+        self.dt = 1/2         # Simulation time step
         self.roads = []         # Array to store roads
         self.generators = []
         self.time_travel = []
@@ -50,12 +51,19 @@ class Simulation:
                     self.index += 1
                     print(self.index)
                     self.time_travel.append(self.t - vehicle.time_added)  # Append the current time_travel data
-                    if self.index == 1000:
+                    if self.index == 10000:
                         plt.hist(self.time_travel, bins=20, edgecolor='black')
                         plt.xlabel('Values')
                         plt.ylabel('Frequency')
                         plt.title('Histogram of Values')
                         plt.show()
+
+                        csv_filename = 'time_travel_data_36.csv'
+                        with open(csv_filename, 'w', newline='') as csvfile:
+                            csv_writer = csv.writer(csvfile)
+                            csv_writer.writerow(['Time_Travel'])
+                            csv_writer.writerows(map(lambda x: [x], self.time_travel))
+
 
                 road.update(self.dt)
 

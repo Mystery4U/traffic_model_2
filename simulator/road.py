@@ -1,3 +1,5 @@
+import statistics
+
 from scipy.spatial import distance
 from collections import deque
 
@@ -68,5 +70,5 @@ class Road:
             self.vehicles[index].update(lead, dt)
 
         # for i in self.vehicles:
-        #     print(i.rijbaan, i.x, i.v, i.links, i.rechts)
-        # print('----------')
+        #     print(i.rijbaan, i.x, i.v*3.6)
+        # print('--------')
