@@ -30,14 +30,14 @@ class VehicleGenerator:
                 return Vehicle(config)
 
     def update(self):
-        r = float(np.random.normal(40, 5, 1))
+        r = float(np.random.normal(60, 5, 1))
         if self.sim.t - self.last_added_time >= 60/r:
             road = self.sim.roads[0]
             if len(road.vehicles) == 0 or road.vehicles[-1].x > abs(self.upcoming_vehicle.v - road.vehicles[-1].v) * 2:
                 self.upcoming_vehicle.time_added = self.sim.t
                 if len(road.vehicles) != 0:
                     self.upcoming_vehicle.rijbaan = np.random.choice(list(range(1, len(self.sim.roads) + 1)))
-                    self.upcoming_vehicle.l = np.random.choice([4, 19], p=[0.9, 0.1])
+                    # self.upcoming_vehicle.l = np.random.choice([4, 19], p=[0.9, 0.1])
                 road.vehicles.append(self.upcoming_vehicle)
 
                 # Reset last_added_time and upcoming_vehicle

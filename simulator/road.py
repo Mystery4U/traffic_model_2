@@ -1,5 +1,3 @@
-import statistics
-
 from scipy.spatial import distance
 from collections import deque
 

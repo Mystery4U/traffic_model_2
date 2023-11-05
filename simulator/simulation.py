@@ -20,6 +20,7 @@ class Simulation:
         self.roads = []         # Array to store roads
         self.generators = []
         self.time_travel = []
+        self.types = []
         self.index = 0
         self.paused = False
 
@@ -48,21 +49,25 @@ class Simulation:
                 vehicle = road.vehicles[0]
                 if vehicle.x >= road.length:
                     road.vehicles.popleft()
-                    self.index += 1
                     print(self.index)
                     self.time_travel.append(self.t - vehicle.time_added)  # Append the current time_travel data
-                    if self.index == 10000:
+                    self.types.append(vehicle.type)
+
+                    self.index += 1
+
+                    if self.index == 3000:
                         plt.hist(self.time_travel, bins=20, edgecolor='black')
                         plt.xlabel('Values')
                         plt.ylabel('Frequency')
                         plt.title('Histogram of Values')
                         plt.show()
 
-                        csv_filename = 'time_travel_data_36.csv'
+                        csv_filename = 'filmpje_50.csv'
                         with open(csv_filename, 'w', newline='') as csvfile:
                             csv_writer = csv.writer(csvfile)
-                            csv_writer.writerow(['Time_Travel'])
-                            csv_writer.writerows(map(lambda x: [x], self.time_travel))
+                            csv_writer.writerow(['Time_Travel', 'Vehicle_Type'])
+                            data = zip(self.time_travel, self.types)
+                            csv_writer.writerows(data)
 
 
                 road.update(self.dt)
